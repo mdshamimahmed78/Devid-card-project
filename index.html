@@ -1,0 +1,519 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head><script src="https://static.readdy.ai/static/e.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zole Card Game - Lobby</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>tailwind.config={theme:{extend:{colors:{primary:'#8B4513',secondary:'#D4AF37'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <style>
+        :where([class^="ri-"])::before { content: "\f3c2"; }
+        body { font-family: 'Open Sans', sans-serif; }
+        .font-size-small { font-size: 14px; }
+        .font-size-medium { font-size: 16px; }
+        .font-size-large { font-size: 18px; }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #ffffff;
+            color: #333333;
+            text-align: center;
+            border-radius: 8px;
+            padding: 12px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border: 1px solid #e5e5e5;
+            font-size: 14px;
+        }
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #ffffff transparent transparent transparent;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+        }
+        .room-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 69, 19, 0.15);
+        }
+        .room-card {
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body class="bg-orange-50 font-size-medium">
+    <div class="min-h-screen flex flex-col" style="width: 1080px; height: 700px; margin: 0 auto; overflow: hidden;">
+        <!-- Header -->
+        <header class="bg-white border-b border-orange-200 px-4 py-3" style="height: 60px;">
+            <div class="flex items-center justify-between h-full">
+                <!-- Player Info -->
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-semibold">
+                        JD
+                    </div>
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-2">
+                            <span class="font-semibold text-gray-800">John Davis</span>
+                            <span class="text-xs bg-secondary text-white px-2 py-1 rounded-full">Level 15</span>
+                        </div>
+                        <div class="flex items-center gap-1 text-sm text-gray-600">
+                            <div class="w-4 h-4 flex items-center justify-center">
+                                <i class="ri-coin-line text-secondary"></i>
+                            </div>
+                            <span>2,450 coins</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Game Stats -->
+                <div class="flex items-center gap-6 text-sm text-gray-600">
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 flex items-center justify-center">
+                            <i class="ri-user-line"></i>
+                        </div>
+                        <span>142 players online</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-4 h-4 flex items-center justify-center">
+                            <i class="ri-home-line"></i>
+                        </div>
+                        <span>28 active rooms</span>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex items-center gap-2">
+                    <div class="tooltip">
+                        <button class="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary hover:bg-orange-100 !rounded-button">
+                            <i class="ri-font-size-line"></i>
+                        </button>
+                        <span class="tooltiptext">Change font size</span>
+                    </div>
+                    <div class="tooltip">
+                        <button class="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary hover:bg-orange-100 !rounded-button">
+                            <i class="ri-settings-line"></i>
+                        </button>
+                        <span class="tooltiptext">Game settings</span>
+                    </div>
+                    <div class="tooltip">
+                        <button class="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-primary hover:bg-orange-100 !rounded-button">
+                            <i class="ri-fullscreen-line"></i>
+                        </button>
+                        <span class="tooltiptext">Toggle fullscreen</span>
+                    </div>
+                    <div class="tooltip">
+                        <button class="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-red-600 hover:bg-red-50 !rounded-button">
+                            <i class="ri-logout-box-line"></i>
+                        </button>
+                        <span class="tooltiptext">Logout</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Side Panel -->
+            <div class="bg-white border-r border-orange-200 p-4" style="width: 200px;">
+                <button id="createRoomBtn" class="w-full bg-primary text-white py-3 px-4 !rounded-button font-semibold hover:bg-opacity-90 whitespace-nowrap mb-4">
+                    Create New Room
+                </button>
+
+                <!-- Room Legend -->
+                <div class="space-y-3">
+                    <h3 class="font-semibold text-gray-800 text-sm">Room Status</h3>
+                    <div class="space-y-2 text-xs">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                            <span>Available</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                            <span>Almost Full</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                            <span>Full/In Game</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                            <span>Private</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 space-y-3">
+                    <h3 class="font-semibold text-gray-800 text-sm">Game Types</h3>
+                    <div class="space-y-2 text-xs">
+                        <div class="flex items-center gap-2">
+                            <div class="w-4 h-4 flex items-center justify-center">
+                                <i class="ri-user-2-line"></i>
+                            </div>
+                            <span>2 Players</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-4 h-4 flex items-center justify-center">
+                                <i class="ri-user-3-line"></i>
+                            </div>
+                            <span>3 Players</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-4 h-4 flex items-center justify-center">
+                                <i class="ri-team-line"></i>
+                            </div>
+                            <span>4 Players</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Room List -->
+            <div class="flex-1 p-4 overflow-y-auto">
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- Room Card 1 -->
+                    <div class="room-card bg-white border border-orange-200 rounded-lg p-4 hover:border-primary cursor-pointer">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                <h3 class="font-semibold text-gray-800">Evening Masters</h3>
+                            </div>
+                            <div class="w-4 h-4 flex items-center justify-center">
+                                <i class="ri-user-3-line text-gray-600"></i>
+                            </div>
+                        </div>
+                        <div class="space-y-2 text-sm text-gray-600 mb-4">
+                            <div class="flex justify-between">
+                                <span>Players:</span>
+                                <span class="font-semibold">2/3</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Bet:</span>
+                                <span class="font-semibold text-secondary">50 coins</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Speed:</span>
+                                <span>Normal</span>
+                            </div>
+                        </div>
+                        <button class="w-full bg-primary text-white py-2 px-4 !rounded-button hover:bg-opacity-90 whitespace-nowrap">
+                            Join Room
+                        </button>
+                    </div>
+
+                    <!-- Room Card 2 -->
+                    <div class="room-card bg-white border border-orange-200 rounded-lg p-4 hover:border-primary cursor-pointer">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                <h3 class="font-semibold text-gray-800">Quick Game</h3>
+                            </div>
+                            <div class="w-4 h-4 flex items-center justify-center">
+                                <i class="ri-team-line text-gray-600"></i>
+                            </div>
+                        </div>
+                        <div class="space-y-2 text-sm text-gray-600 mb-4">
+                            <div class="flex justify-between">
+                                <span>Players:</span>
+                                <span class="font-semibold">3/4</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Bet:</span>
+                                <span class="font-semibold text-secondary">25 coins</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Speed:</span>
+                                <span>Fast</span>
+                            </div>
+                        </div>
+                        <button class="w-full bg-primary text-white py-2 px-4 !rounded-button hover:bg-opacity-90 whitespace-nowrap">
+                            Join Room
+                        </button>
+                    </div>
+
+                    <!-- Room Card 3 -->
+                    <div class="room-card bg-white border border-orange-200 rounded-lg p-4 hover:border-primary cursor-pointer">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                <h3 class="font-semibold text-gray-800">Beginners Welcome</h3>
+                            </div>
+                            <div class="w-4 h-4 flex items-center justify-center">
+                                <i class="ri-user-3-line text-gray-600"></i>
+                            </div>
+                        </div>
+                        <div class="space-y-2 text-sm text-gray-600 mb-4">
+                            <div class="flex justify-between">
+                                <span>Players:</span>
+                                <span class="font-semibold">1/3</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Bet:</span>
+                                <span class="font-semibold text-secondary">10 coins</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Speed:</span>
+                                <span>Slow</span>
+                            </div>
+                        </div>
+                        <button class="w-full bg-primary text-white py-2 px-4 !rounded-button hover:bg-opacity-90 whitespace-nowrap">
+                            Join Room
+                        </button>
+                    </div>
+
+                    <!-- Room Card 4 -->
+                    <div class="room-card bg-white border border-orange-200 rounded-lg p-4 hover:border-primary cursor-pointer">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                <h3 class="font-semibold text-gray-800">High Stakes</h3>
+                            </div>
+                            <div class="w-4 h-4 flex items-center justify-center">
+                                <i class="ri-user-3-line text-gray-600"></i>
+                            </div>
+                        </div>
+                        <div class="space-y-2 text-sm text-gray-600 mb-4">
+                            <div class="flex justify-between">
+                                <span>Players:</span>
+                                <span class="font-semibold">3/3</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Bet:</span>
+                                <span class="font-semibold text-secondary">200 coins</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Speed:</span>
+                                <span>Normal</span>
+                            </div>
+                        </div>
+                        <button class="w-full bg-gray-400 text-white py-2 px-4 !rounded-button cursor-not-allowed whitespace-nowrap" disabled>
+                            Room Full
+                        </button>
+                    </div>
+
+                    <!-- Room Card 5 -->
+                    <div class="room-card bg-white border border-orange-200 rounded-lg p-4 hover:border-primary cursor-pointer">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                <h3 class="font-semibold text-gray-800">Private Match</h3>
+                            </div>
+                            <div class="w-4 h-4 flex items-center justify-center">
+                                <i class="ri-user-2-line text-gray-600"></i>
+                            </div>
+                        </div>
+                        <div class="space-y-2 text-sm text-gray-600 mb-4">
+                            <div class="flex justify-between">
+                                <span>Players:</span>
+                                <span class="font-semibold">1/2</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Bet:</span>
+                                <span class="font-semibold text-secondary">100 coins</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Speed:</span>
+                                <span>Normal</span>
+                            </div>
+                        </div>
+                        <button class="w-full bg-blue-600 text-white py-2 px-4 !rounded-button hover:bg-blue-700 whitespace-nowrap">
+                            Request Access
+                        </button>
+                    </div>
+
+                    <!-- Room Card 6 -->
+                    <div class="room-card bg-white border border-orange-200 rounded-lg p-4 hover:border-primary cursor-pointer">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                <h3 class="font-semibold text-gray-800">Sunday Special</h3>
+                            </div>
+                            <div class="w-4 h-4 flex items-center justify-center">
+                                <i class="ri-team-line text-gray-600"></i>
+                            </div>
+                        </div>
+                        <div class="space-y-2 text-sm text-gray-600 mb-4">
+                            <div class="flex justify-between">
+                                <span>Players:</span>
+                                <span class="font-semibold">2/4</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Bet:</span>
+                                <span class="font-semibold text-secondary">75 coins</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Speed:</span>
+                                <span>Normal</span>
+                            </div>
+                        </div>
+                        <button class="w-full bg-primary text-white py-2 px-4 !rounded-button hover:bg-opacity-90 whitespace-nowrap">
+                            Join Room
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Bar -->
+        <div class="bg-white border-t border-orange-200 px-4 py-2 flex items-center justify-between" style="height: 40px;">
+            <div class="text-xs text-gray-500">
+                Last updated: 2 minutes ago
+            </div>
+            <div class="flex items-center gap-4 text-xs text-gray-500">
+                <button class="hover:text-primary">Rules</button>
+                <button class="hover:text-primary">Help</button>
+                <button class="hover:text-primary">Support</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Room Modal -->
+    <div id="createRoomModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg p-6 w-96 max-w-full mx-4">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-gray-800">Create New Room</h2>
+                <button id="closeModal" class="w-6 h-6 flex items-center justify-center text-gray-400 hover:text-gray-600">
+                    <i class="ri-close-line"></i>
+                </button>
+            </div>
+            <form class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Room Name</label>
+                    <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="Enter room name">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Number of Players</label>
+                    <div class="flex gap-2">
+                        <button type="button" class="flex-1 py-2 px-3 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 player-count-btn" data-count="2">2 Players</button>
+                        <button type="button" class="flex-1 py-2 px-3 border border-primary bg-primary text-white rounded-lg text-sm player-count-btn active" data-count="3">3 Players</button>
+                        <button type="button" class="flex-1 py-2 px-3 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 player-count-btn" data-count="4">4 Players</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Bet Amount</label>
+                    <input type="number" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" placeholder="Enter bet amount" value="50">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Game Speed</label>
+                    <div class="flex gap-2">
+                        <button type="button" class="flex-1 py-2 px-3 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 speed-btn" data-speed="slow">Slow</button>
+                        <button type="button" class="flex-1 py-2 px-3 border border-primary bg-primary text-white rounded-lg text-sm speed-btn active" data-speed="normal">Normal</button>
+                        <button type="button" class="flex-1 py-2 px-3 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 speed-btn" data-speed="fast">Fast</button>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <input type="checkbox" id="privateRoom" class="w-4 h-4 text-primary border-gray-300 rounded">
+                    <label for="privateRoom" class="text-sm text-gray-700">Private Room</label>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" id="cancelCreate" class="flex-1 py-2 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 whitespace-nowrap">Cancel</button>
+                    <button type="submit" class="flex-1 py-2 px-4 bg-primary text-white rounded-lg hover:bg-opacity-90 whitespace-nowrap">Create Room</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script id="modal-functionality">
+        document.addEventListener('DOMContentLoaded', function() {
+            const createRoomBtn = document.getElementById('createRoomBtn');
+            const createRoomModal = document.getElementById('createRoomModal');
+            const closeModal = document.getElementById('closeModal');
+            const cancelCreate = document.getElementById('cancelCreate');
+
+            createRoomBtn.addEventListener('click', function() {
+                createRoomModal.classList.remove('hidden');
+            });
+
+            closeModal.addEventListener('click', function() {
+                createRoomModal.classList.add('hidden');
+            });
+
+            cancelCreate.addEventListener('click', function() {
+                createRoomModal.classList.add('hidden');
+            });
+
+            createRoomModal.addEventListener('click', function(e) {
+                if (e.target === createRoomModal) {
+                    createRoomModal.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+
+    <script id="form-controls">
+        document.addEventListener('DOMContentLoaded', function() {
+            const playerCountBtns = document.querySelectorAll('.player-count-btn');
+            const speedBtns = document.querySelectorAll('.speed-btn');
+
+            playerCountBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    playerCountBtns.forEach(b => {
+                        b.classList.remove('active', 'border-primary', 'bg-primary', 'text-white');
+                        b.classList.add('border-gray-300', 'hover:bg-gray-50');
+                    });
+                    this.classList.add('active', 'border-primary', 'bg-primary', 'text-white');
+                    this.classList.remove('border-gray-300', 'hover:bg-gray-50');
+                });
+            });
+
+            speedBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    speedBtns.forEach(b => {
+                        b.classList.remove('active', 'border-primary', 'bg-primary', 'text-white');
+                        b.classList.add('border-gray-300', 'hover:bg-gray-50');
+                    });
+                    this.classList.add('active', 'border-primary', 'bg-primary', 'text-white');
+                    this.classList.remove('border-gray-300', 'hover:bg-gray-50');
+                });
+            });
+        });
+    </script>
+
+    <script id="font-size-control">
+        document.addEventListener('DOMContentLoaded', function() {
+            const fontSizeBtn = document.querySelector('[class*="ri-font-size"]').parentElement;
+            const sizes = ['font-size-small', 'font-size-medium', 'font-size-large'];
+            let currentSizeIndex = 1;
+
+            fontSizeBtn.addEventListener('click', function() {
+                document.body.classList.remove(...sizes);
+                currentSizeIndex = (currentSizeIndex + 1) % sizes.length;
+                document.body.classList.add(sizes[currentSizeIndex]);
+            });
+        });
+    </script>
+<script>
+    !function (t, e) { var o, n, p, r; e.__SV || (window.posthog = e, e._i = [], e.init = function (i, s, a) { function g(t, e) { var o = e.split("."); 2 == o.length && (t = t[o[0]], e = o[1]), t[e] = function () { t.push([e].concat(Array.prototype.slice.call(arguments, 0))) } } (p = t.createElement("script")).type = "text/javascript", p.crossOrigin = "anonymous", p.async = !0, p.src = s.api_host.replace(".i.posthog.com", "-assets.i.posthog.com") + "/static/array.js", (r = t.getElementsByTagName("script")[0]).parentNode.insertBefore(p, r); var u = e; for (void 0 !== a ? u = e[a] = [] : a = "posthog", u.people = u.people || [], u.toString = function (t) { var e = "posthog"; return "posthog" !== a && (e += "." + a), t || (e += " (stub)"), e }, u.people.toString = function () { return u.toString(1) + ".people (stub)" }, o = "init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "), n = 0; n < o.length; n++)g(u, o[n]); e._i.push([i, s, a]) }, e.__SV = 1) }(document, window.posthog || []);
+    posthog.init('phc_t9tkQZJiyi2ps9zUYm8TDsL6qXo4YmZx0Ot5rBlAlEd', {
+        api_host: 'https://us.i.posthog.com',
+        autocapture: false,
+        capture_pageview: false,
+        capture_pageleave: false,
+        capture_performance: {
+            web_vitals: false,
+        },
+        rageclick: false,
+    })
+    window.shareKey = 'pZ9OayMgt4RCNjCm13wCTw';
+    window.host = 'readdy.ai';
+</script>
+</body>
+</html>
